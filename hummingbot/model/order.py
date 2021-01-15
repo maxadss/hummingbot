@@ -40,7 +40,7 @@ class Order(HummingbotBase):
     price = Column(Float, nullable=False)
     last_status = Column(Text, nullable=False)
     last_update_timestamp = Column(BigInteger, nullable=False)
-    exchange_trade_id = Column(Text, nullable=False)
+    exchange_trade_id = Column(Text, nullable=True)
     status = relationship("OrderStatus", back_populates="order")
     trade_fills = relationship("TradeFill", back_populates="order")
 
