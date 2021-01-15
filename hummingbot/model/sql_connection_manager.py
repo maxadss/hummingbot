@@ -9,7 +9,6 @@ from sqlalchemy import (
     MetaData,
 )
 from sqlalchemy.engine.base import Engine
-from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import (
     sessionmaker,
     Session,
@@ -172,24 +171,6 @@ class SQLConnectionManager:
                 Migrator().migrate_db_to_version(self, int(self.LOCAL_DB_VERSION_VALUE))
                 local_db_version.value = self.LOCAL_DB_VERSION_VALUE
                 self._shared_session.commit()
-
-    def check_and_upgrade_trade_fills_db(self):
-        try:
-            local_db_version = self.get_local_db_version()
-            if local_db_version is None:
-                version_info: LocalMetadata = LocalMetadata(key=self.LOCAL_DB_VERSION_KEY,
-                                                            value=self.LOCAL_DB_VERSION_VALUE)
-                self._shared_session.add(version_info)
-                self._shared_session.commit()
-            else:
-                # There's no past db version to upgrade from at this moment. So we'll just update the version value
-                # if needed.
-                if local_db_version.value < self.LOCAL_DB_VERSION_VALUE:
-                    local_db_version.value = self.LOCAL_DB_VERSION_VALUE
-                    self._shared_session.commit()
-        except SQLAlchemyError:
-            self.logger().error("Unexpected error while checking and upgrading the local database.",
-                                exc_info=True)
 
     def commit(self):
         self._shared_session.commit()
